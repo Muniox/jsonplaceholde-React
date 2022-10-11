@@ -14,12 +14,10 @@ const getData = async (url = '') => {
 }
 
 const PostComponent = (props) => {
-  
-
   return(
    <div className='post'>
       <div className='post__id'>
-        User: {props.postItem.userId}
+        User: {props.name}
       </div>
       <div className='post__title'>
         {props.postItem.title}
@@ -30,7 +28,7 @@ const PostComponent = (props) => {
 const App = () => {
   const [post, setPost] = useState([]);
   const [timer, setTimer] = useState(10);
-  
+  const [user, setUser] = useState([]);
 
   useEffect(() => {
     if (timer > 0) {
@@ -50,6 +48,7 @@ const App = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       setPost(await getData('https://jsonplaceholder.typicode.com/posts'));
+      setUser(await getData('https://jsonplaceholder.typicode.com/users'));
     }, 10000)
     return () => clearInterval(interval);
   },[]
@@ -57,7 +56,10 @@ const App = () => {
 
   const postHandler = async () => {
     setPost(await getData('https://jsonplaceholder.typicode.com/posts'));
-    
+  }
+
+  const userHandler = async () => {
+    setUser(await getData('https://jsonplaceholder.typicode.com/users'));
   }
 
   return (
@@ -65,17 +67,19 @@ const App = () => {
       <div className='title-container'>
         <h1>Pobrane Posty:</h1>
         <h3>Odświeżenie za: {timer}</h3>
-        <button onClick={postHandler}>
+        <button onClick={() => { postHandler(); userHandler(); }}>
           Get posts  
         </button>
       </div>
 
       
-        {post.map(postItem => {
-          return <PostComponent postItem={postItem} key={postItem.id} />
+      {post.map(postItem => {
+        const name = user.map(userItem => (userItem.id === postItem.userId) ? userItem.name : "");
+        return <PostComponent postItem={postItem} key={postItem.id} name={name} />
         })} 
     </div>
   );
 }
+
 
 export default App;
